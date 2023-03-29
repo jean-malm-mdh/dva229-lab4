@@ -5,32 +5,12 @@
 // Main
 namespace Lab4
 open FSharpx.Control.Observable // Fsharpx
-
+open EventHandling
 module Main =
 
     // We provide you a simple type alias for the program state, to start with
     // TODO: Update the type for the state, based on your implementation
-    type State = int list
-
-    // The GuiInterface is tightly coupled with the main loop which is its only intented user, thus the nested module
-    module GuiInterface = 
-        type UserAction = 
-        | Zero
-        | One
-        | Two 
-        | Three
-        // TODO: Fill in the rest of the actions. This is an example! Think a bit on what type of data you have to represent - can it be made more compact?
-
-        // Here we define what we will be observing (clicks)
-        // The map transforms the observation (click) by the given function. In our case this means
-        // that clicking the button AddX will return some value from our defined type for user actions.
-        // We then merge all the observables together to a single stream, as shown in the lecture
-        let observables = List.reduce Observable.merge [
-            Observable.map (fun _-> Zero) Gui.btnAdd0.Click;
-            Observable.map (fun _-> One) Gui.btnAdd1.Click;
-            Observable.map (fun _-> Two) Gui.btnAdd2.Click;
-            Observable.map (fun _-> Three) Gui.btnAdd3.Click
-        ]  
+    type State = int list        
 
     // This main function loops using async and Async.Await. See lecture F13 for alternatives.
     // The loop implements a basic view-input-update behaviour.
@@ -39,7 +19,7 @@ module Main =
         // At the start we do the computations that we can do with the inputs we have, just as in a regular application
         // In this case, we simply update the view (we print the state)
         printfn "%A" state
-    
+
         // Next, since we don't have all inputs (yet) we need to wait for them to become available (Async.Await)
         // let! (bang) enables execution to continue on other computations and threads.
         let! somethingObservable = Async.AwaitObservable(observable) 
@@ -49,16 +29,20 @@ module Main =
         // Please note that using integers here is just done as an example. 
         // TODO: Replace integers with some more informative type. We leave the design up to you!
         match somethingObservable with
-            | GuiInterface.Zero     -> return! loop observable (0::state)
-            | GuiInterface.One     -> return! loop observable (1::state)
-            | GuiInterface.Two     -> return! loop observable (2::state)
-            | GuiInterface.Three     -> return! loop observable (3::state)
+            | UserAction.Zero     -> return! loop observable (0::state)
+            | UserAction.One     -> return! loop observable (1::state)
+            | UserAction.Two     -> return! loop observable (2::state)
+            | UserAction.Three     -> return! loop observable (3::state)
             | _     -> failwith "Not implemented yet!"
         // The last thing we do is a recursive call to ourselves, thus looping
     }
 
-   
-    // Starts the main loop and opens the Gui 
-    Async.StartImmediate(loop GuiInterface.observables []); System.Windows.Forms.Application.Run(Gui.form)
+    let StartProgram () =
+        let form, subscribableEventActionPairs = Gui.createCalculatorGUI "Lab4 Calculator"
+        let observables = 
+            (List.map (fun (e, a) -> Observable.map a e) subscribableEventActionPairs)
+            |> (List.reduce Observable.merge)
+        // Starts the main loop and opens the Gui 
+        Async.StartImmediate(loop observables []); System.Windows.Forms.Application.Run(form)
 
 
