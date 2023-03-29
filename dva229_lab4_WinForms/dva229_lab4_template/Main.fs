@@ -45,4 +45,5 @@ module Main =
         // Starts the main loop and opens the Gui 
         Async.StartImmediate(loop observables []); System.Windows.Forms.Application.Run(form)
 
-
+    // Since we encapsulated the program in a function, we need to call it to start
+    StartProgram ()
