@@ -13,7 +13,7 @@ mkdir "./bin" > /dev/null 2>&1
 
 #Compile the file. NOTE: if you add code files, they need to be added to list. 
 #Due to the dependencies order, Main.fs needs to be at the end of the list!
-fsharpc --lib:$FSHARPX_DLL_PATH --reference:$FSHARPX_DLL_NAME Gui.fs Main.fs
+fsharpc --lib:$FSHARPX_DLL_PATH --reference:$FSHARPX_DLL_NAME EventHandling.fs Gui.fs Main.fs
 
 #Move the required files to bin directory
 cp --no-clobber "./FSharp.Core.dll" "./bin/FSharp.Core.dll"

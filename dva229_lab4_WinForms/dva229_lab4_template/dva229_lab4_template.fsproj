@@ -57,6 +57,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <Content Include="packages.config" />
+    <Compile Include="EventHandling.fs" />
     <Compile Include="Gui.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
